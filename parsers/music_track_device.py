@@ -34,6 +34,13 @@ class MusicTrackDevice(Parser):
             if child.get("x:id") == "destination":
                 return child.get("objectID")
 
+    def add_channel(self, channel):
+        self.add_sibling(self.channels, channel)
+        for a in channel:
+            if a.get("x:id") == "uniqueID":
+                uid = a.get("uid")
+        self.channels[uid] = channel
+
             
 if __name__ == "__main__":
     mtd = MusicTrackDevice(sys.argv[1])

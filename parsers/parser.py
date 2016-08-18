@@ -12,3 +12,11 @@ class Parser(object):
 
     def write(self):
         open(self.fn, 'w').write(ElementTree.tostring(self.tree))
+
+    def swap(self, old, new):
+        p = old.getparent()
+        p.replace(old, new)
+
+    def add_sibling(self, olds_dict, new):
+        p = olds_dict.values()[0].getparent()
+        p.append(new)

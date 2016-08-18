@@ -35,6 +35,13 @@ class AudioSynthFolder(Parser):
             if id == "presetPath":
                 return "/" + child.get("text")
 
+    def add_synth(self, synth):
+        self.add_sibling(self.synths, synth)
+        for child in synth:
+            if child.get("x:id") == "deviceData":
+                uid = child.get("uid")
+        self.synths[uid] = synth
+
 if __name__ == "__main__":
     asf = AudioSynthFolder(sys.argv[1])
     print asf.synths

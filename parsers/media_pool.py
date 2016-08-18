@@ -50,6 +50,24 @@ class MediaPool(Parser):
         dp = self.doc_path.get("url")
         return dp.split("file://")[1]
 
+    def add_music_clip(self, clip):
+        self.add_sibling(self.music_clips, clip)
+        self.music_clips[clip.get("mediaID")] = clip
+
+    def add_external_clip(self, clip):
+        self.add_sibling(self.external_clips, clip)
+        self.external_clips[clip.get("mediaID")] = clip
+
+    def add_package(self, package):
+        p = self.packages[0].getparent()
+        p.append(package)
+        self.packages.append(package)
+
+    def set_doc_path(self, doc_path):
+        p = self.doc_path.getparent()
+        p.replace(self.doc_path, doc_path)
+        self.doc_path = doc_path
+
 if __name__ == "__main__":
     mp = MediaPool(sys.argv[1])
     print mp.get_mc_file(mp.music_clips.keys()[0])

@@ -40,6 +40,19 @@ class MixerConsole(Parser):
                 for v in child:
                     visible.append(v.get("uid"))
         return visible
+
+    def add_channel_setting(self, channel_setting):
+        self.add_sibling(self.channel_settings, channel_setting)
+        uid = channel_setting.get("path")
+        uid = '{%s-%s-%s-%s-%s}' % (uid[:8], uid[8:12],
+                                    uid[12:16], uid[16:20], uid[20:])
+        self.channel_settings[uid] = channel_setting
+
+    def add_channel_to_banks(self, channel):
+        for id in self.channel_banks:
+            for c in self.channel_banks[id]:
+                if c.get("x:id") == "visible":
+                    c.append(channel)
             
 if __name__ == "__main__":
     mc = MixerConsole(sys.argv[1])

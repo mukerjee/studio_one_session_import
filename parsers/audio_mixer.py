@@ -78,6 +78,27 @@ class AudioMixer(Parser):
             if id == "Inserts":
                 return self.parse_inserts(t)
 
+    def add_output(self, output):
+        self.add_sibling(self.outputs, output)
+        for t in output:
+            if t.get("x:id") == "uniqueID":
+                uid = t.get("uid")
+        self.outputs[uid] = output
+
+    def add_input(self, input):
+        self.add_sibling(self.inputs, input)
+        for t in input:
+            if t.get("x:id") == "uniqueID":
+                uid = t.get("uid")
+        self.inputs[uid] = input
+
+    def add_synth(self, synth):
+        self.add_sibling(self.synths, synth)
+        for t in synth:
+            if t.get("x:id") == "uniqueID":
+                uid = t.get("uid")
+        self.synths[uid] = synth
+
 if __name__ == "__main__":
     am = AudioMixer(sys.argv[1])
     tid = am.synths.keys()[4]

@@ -76,6 +76,33 @@ class Song(Parser):
             return []
         return self.parse_media_track_list(self.tracks[trackID])
 
+    def set_tempo_map(self, tm):
+        self.swap(self.tempo_map, tm)
+        self.tempo_map = tm
+
+    def set_time_sig_map(self, tsm):
+        self.swap(self.time_sig_map, tsm)
+        self.time_sig_map = tsm
+
+    def set_time_zone_map(self, tzm):
+        self.swap(self.time_zone_map, tzm)
+        self.time_zone_map = tzm
+
+    def set_marker_track(self, mt):
+        self.swap(self.marker_track, mt)
+        self.marker_track = mt
+
+    def set_arranger_track(self, at):
+        self.swap(self.arranger_track, at)
+        self.arranger_track = at
+
+    def add_track(self, track):
+        self.add_sibling(self.tracks, track)
+        tid = track.get("trackID")
+        name = track.get("name")
+        self.tracks[tid] = track
+        self.track_names[name] = tid
+
 
 if __name__ == "__main__":
     s = Song(sys.argv[1])
