@@ -16,6 +16,7 @@ from song import Song
 
 DONT_OVERWRITE = True
 
+
 class SongModel(object):
     fn = None
     prefix = None
@@ -25,7 +26,7 @@ class SongModel(object):
     mediapool = None
     mixerconsole = None
     audiomixer = None
-    clean = True
+    is_clean = True
     
     def __init__(self, fn):
         self.fn = fn
@@ -47,25 +48,26 @@ class SongModel(object):
         f = zipfile.ZipFile(self.fn, 'r')
         f.extractall(self.prefix)
         f.close()
-        self.clean = False
+        self.is_clean = False
 
     def compress(self):
         f = zipfile.ZipFile(self.fn, 'w', zipfile.ZIP_DEFLATED)
+        old_dir = os.getcwd()
         os.chdir(self.prefix)
         for root, dirs, files in os.walk('./'):
             for file in files:
                 f.write(os.path.join(root, file))
         f.close()
-        os.chdir('../')
+        os.chdir(old_dir)
 
     def delete_temp(self):
         shutil.rmtree(self.prefix)
-        self.clean = True
+        self.is_clean = True
 
     def clean(self):
-        if not self.clean:
+        if not self.is_clean:
             self.delete_temp()
-            self.clean = True
+            self.is_clean = True
 
     def write(self):
         self.song.write()

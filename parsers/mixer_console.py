@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import sys
-from parser import Parser
+from song_parser import Parser
 
 
 class MixerConsole(Parser):
