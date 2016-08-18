@@ -1,17 +1,19 @@
 #!/usr/bin/python
 
 import sys
+from lxml import etree
 from song_parser import Parser
 
 
 class MediaPool(Parser):
-    music_clips = {}  # maps mediaID to XML MusicClip
-    external_clips = {}  # maps mediaID to XML ExternalClip
-    packages = []  # list of XML package Association
-    doc_path = None  # XML documentPath
-    
     def __init__(self, fn):
         super(MediaPool, self).__init__(fn)
+
+        self.music_clips = {}  # maps mediaID to XML MusicClip
+        self.external_clips = {}  # maps mediaID to XML ExternalClip
+        self.packages = []  # list of XML package Association
+        self.doc_path = None  # XML documentPath
+    
         for child in self.tree:
             if child.tag == 'Attributes':
                 id = child.get("x:id")
@@ -51,7 +53,20 @@ class MediaPool(Parser):
         return dp.split("file://")[1]
 
     def add_music_clip(self, clip):
-        self.add_sibling(self.music_clips, clip)
+        if len(self.music_clips):
+            self.add_sibling(self.music_clips, clip)
+        else:
+            for child in self.tree:
+                if child.get("x:id") == "rootFolder":
+                    mf = None
+                    for a in child:
+                        if a.get("name") == "Music":
+                            mf = a
+                    if not mf:
+                        mf = etree.Element("MediaFolder")
+                        mf.set("name", "Music")
+                        child.append(mf)
+                    mf.append(clip)
         self.music_clips[clip.get("mediaID")] = clip
 
     def add_external_clip(self, clip):

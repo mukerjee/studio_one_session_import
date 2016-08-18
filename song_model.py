@@ -18,17 +18,8 @@ DONT_OVERWRITE = True
 
 
 class SongModel(object):
-    fn = None
-    prefix = None
-    song = None
-    musictrackdevice = None
-    audiosynthfolder = None
-    mediapool = None
-    mixerconsole = None
-    audiomixer = None
-    is_clean = True
-    
     def __init__(self, fn):
+        self.is_clean = True
         self.fn = fn
         self.prefix = os.path.splitext(fn)[0]
         self.extract()

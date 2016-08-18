@@ -5,10 +5,11 @@ from song_parser import Parser
 
 
 class AudioSynthFolder(Parser):
-    synths = {}  # maps synth deviceData UID to XML Synth Attributes
-    
     def __init__(self, fn):
         super(AudioSynthFolder, self).__init__(fn)
+
+        self.synths = {}  # maps synth deviceData UID to XML Synth Attributes
+    
         for child in self.tree:
             if child.get("x:id") != "Presets":
                 self.parse_synth(child)
@@ -17,7 +18,9 @@ class AudioSynthFolder(Parser):
         for child in root:
             id = child.get("x:id")
             if id == "deviceData":
-                uid = child.get("uid")
+                for a in child:
+                    if a.get("x:id") == "uniqueID":
+                        uid = a.get("uid")
         self.synths[uid] = root
 
     def get_name(self, uid):
@@ -36,7 +39,7 @@ class AudioSynthFolder(Parser):
                 return "/" + child.get("text")
 
     def add_synth(self, synth):
-        self.add_sibling(self.synths, synth)
+        self.tree.append(synth)
         for child in synth:
             if child.get("x:id") == "deviceData":
                 uid = child.get("uid")

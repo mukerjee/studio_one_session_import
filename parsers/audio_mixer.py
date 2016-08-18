@@ -1,16 +1,18 @@
 #!/usr/bin/python
 
 import sys
+from lxml import etree
 from song_parser import Parser
 
 
 class AudioMixer(Parser):
-    outputs = {}  # maps channel uid to XML AudioOutputChannel
-    inputs = {}  # maps channel uid to XML AudioInputChannel
-    synths = {}  # maps channel uid to XML AudioSynthChannel
-    
     def __init__(self, fn):
         super(AudioMixer, self).__init__(fn)
+
+        self.outputs = {}  # maps channel uid to XML AudioOutputChannel
+        self.inputs = {}  # maps channel uid to XML AudioInputChannel
+        self.synths = {}  # maps channel uid to XML AudioSynthChannel
+    
         for child in self.tree:
             if child.tag == "Attributes":
                 id = child.get("x:id")
@@ -93,7 +95,21 @@ class AudioMixer(Parser):
         self.inputs[uid] = input
 
     def add_synth(self, synth):
-        self.add_sibling(self.synths, synth)
+        if len(self.synths):
+            self.add_sibling(self.synths, synth)
+        else:
+            for child in self.tree:
+                if child.get("x:id") == "channels":
+                    cg = None
+                    for a in child:
+                        if a.get("name") == "AudioSynth":
+                            cg = a
+                    if not cg:
+                        cg = etree.Element("ChannelGroup")
+                        cg.set("name", "AudioSynth")
+                        cg.set("flags", "1")
+                        child.append(cg)
+                    cg.append(synth)
         for t in synth:
             if t.get("x:id") == "uniqueID":
                 uid = t.get("uid")

@@ -1,20 +1,23 @@
 #!/usr/bin/python
 
 import sys
+from collections import OrderedDict
 from song_parser import Parser
 
 
 class Song(Parser):
-    tempo_map = None  # XML TempoMap
-    time_sig_map = None  # XML TimeSignatureMap
-    time_zone_map = None  # XML TimeZoneMap
-    tracks = {}  # maps trackID to XML MediaTrack
-    track_names = {}  # maps track names to trackID
-    marker_track = None  # XML MarkerTrack
-    arranger_track = None  # XML ArrangerTrack
-
     def __init__(self, fn):
         super(Song, self).__init__(fn)
+
+        self.tempo_map = None  # XML TempoMap
+        self.time_sig_map = None  # XML TimeSignatureMap
+        self.time_zone_map = None  # XML TimeZoneMap
+        self.tracks = OrderedDict()  # maps trackID to XML MediaTrack
+        self.parent_track = None  # XML <List x:id="Tracks">
+        self.track_names = OrderedDict()  # maps track names to trackID
+        self.marker_track = None  # XML MarkerTrack
+        self.arranger_track = None  # XML ArrangerTrack
+
         for child in self.tree:
             if child.tag == "Attributes":
                 id = child.get("x:id")
@@ -41,6 +44,7 @@ class Song(Parser):
                 self.time_zone_map = child
 
     def parse_tracks(self, root):
+        self.parent_track = root
         for child in root:
             if child.tag == "MediaTrack":
                 self.tracks[child.get("trackID")] = child
@@ -48,14 +52,6 @@ class Song(Parser):
                 self.marker_track = child
             if child.tag == "ArrangerTrack":
                 self.arranger_track = child
-
-    def get_track_name(self, trackID):
-        return self.tracks[trackID].get("name")
-
-    def get_channel_id(self, trackID):
-        for child in self.tracks[trackID]:
-            if child.tag == 'UID' and child.get("x:id") == "channelID":
-                return child.get("uid")
 
     def parse_media_track_list(self, root):
         clip_ids = []
@@ -70,7 +66,15 @@ class Song(Parser):
                         if mp.tag == "MusicPart":
                             clip_ids.append(mp.get("clipID"))
         return clip_ids
-            
+
+    def get_track_name(self, trackID):
+        return self.tracks[trackID].get("name")
+
+    def get_channel_id(self, trackID):
+        for child in self.tracks[trackID]:
+            if child.tag == 'UID' and child.get("x:id") == "channelID":
+                return child.get("uid")
+
     def get_music_part_clip_ids(self, trackID):
         if self.tracks[trackID].get("mediaType") != "Music":
             return []
@@ -97,7 +101,7 @@ class Song(Parser):
         self.arranger_track = at
 
     def add_track(self, track):
-        self.add_sibling(self.tracks, track)
+        self.parent_track.append(track)
         tid = track.get("trackID")
         name = track.get("name")
         self.tracks[tid] = track
