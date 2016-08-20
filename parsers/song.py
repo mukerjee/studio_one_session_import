@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
 import sys
+import hashlib
+from lxml import etree
 from collections import OrderedDict
 from song_parser import Parser
 
@@ -26,24 +28,45 @@ class Song(Parser):
         self.tracks = OrderedDict()  # maps trackID to XML MediaTrack
         self.track_names = OrderedDict()  # maps track names to trackID
 
-        for c in t.xpath("MediaTrack"):
+        for c in t.xpath("MediaTrack | AutomationTrack | FolderTrack"):
+            if c.tag == "MediaTrack" and c.get("trackID") is None:
+                h = self.fix_uid(hashlib.md5(etree.tostring(c)).hexdigest())
+                c.set("trackID", h)
             self.tracks[c.get("trackID")] = c
             self.track_names[c.get("name")] = c.get("trackID")
 
     def get_track_type(self, trackID):
-        return self.tracks[trackID].get("mediaType")
+        t = self.tracks[trackID]
+        if t.tag == "MediaTrack":
+            return t.get("mediaType")
+        elif t.tag == "AutomationTrack":
+            return "Automation"
+        elif t.tag == "FolderTrack":
+            return "Folder"
+        else:
+            return None
 
     def get_track_name(self, trackID):
         return self.tracks[trackID].get("name")
 
+    def get_folder(self, trackID):
+        return self.tracks[trackID].get("parentFolder")
+
     def get_channel_id(self, trackID):
-        return self.tracks[trackID].xpath(
-            "UID[@x:id='channelID']", namespaces=self.ns)[0].get("uid")
+        c = self.tracks[trackID].xpath(
+            "UID[@x:id='channelID']", namespaces=self.ns)
+        return c[0].get("uid") if len(c) else None
 
     def get_clip_ids(self, trackID):
         c = self.tracks[trackID].xpath(
             "*/MusicPart | */AudioEvent | */*/*/MusicPart | */*/*/AudioEvent")
         return [mp.get("clipID") for mp in c]
+
+    def get_automation(self, trackID):
+        a = self.tracks[trackID].xpath(
+            "Attributes[@x:id='AutomationRegionList']/AutomationRegion/Url",
+            namespaces=self.ns)
+        return [b.get("url").split("media://")[1] for b in a]
 
     def set_tempo_map(self, tm):
         self.swap(self.tempo_map, tm)

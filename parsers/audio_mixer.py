@@ -28,16 +28,25 @@ class AudioMixer(Parser):
     def get_name(self, channelID):
         return self.channels[channelID].get("label")
 
+    def get_type(self, channelID):
+        return self.channels[channelID].tag
+
     def get_destination(self, channelID):
-        return self.channels[channelID].xpath(
-            "Connection[@x:id='destination']",
-            namespaces=self.ns)[0].get("objectID").split("/")[0]
+        d = self.channels[channelID].xpath(
+            "Connection[@x:id='destination']", namespaces=self.ns)
+        return d[0].get("objectID").split("/")[0] if len(d) else None
 
     def get_vca(self, channelID):
         vca = self.channels[channelID].xpath(
             "Attributes[@x:id='VCATarget']/Connection[@x:id='vcaTarget']",
-            namespaces=self.ns)[0]
-        return vca.get("objectID").split("/")[0]
+            namespaces=self.ns)
+        return vca[0].get("objectID").split("/")[0] if len(vca) else None
+
+    def get_sends(self, channelID):
+        sends = self.channels[channelID].xpath(
+            "Attributes[@x:id='Sends']/*/Connection[@x:id='destination']",
+            namespaces=self.ns)
+        return [s.get("objectID").split("/")[0] for s in sends]
 
     def add_channel(self, channel):
         cgname = channel.tag.split("Channel")[0]

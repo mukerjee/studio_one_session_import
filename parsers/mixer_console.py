@@ -25,10 +25,6 @@ class MixerConsole(Parser):
             for t in c.xpath("List[@x:id='visible']/UID", namespaces=self.ns):
                 self.channels_in_bank[t.get("uid")] = t
         
-    def fix_uid(self, uid):
-        return '{%s-%s-%s-%s-%s}' % (uid[:8], uid[8:12],
-                                     uid[12:16], uid[16:20], uid[20:])
-
     def get_visible_in_bank(self, bank):
         return [v.get("uid") for v in self.channel_banks[bank].xpath(
             "List[@x:id='visible']/UID", namespaces=self.ns)]
