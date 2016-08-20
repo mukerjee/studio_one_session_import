@@ -4,8 +4,12 @@ from lxml import etree as ElementTree
 class Parser(object):
     def __init__(self, fn):
         self.fn = fn
-        parser = ElementTree.XMLParser(recover=True)
-        self.tree = ElementTree.fromstring(open(fn).read(), parser)
+        xml = open(fn).read()
+        xml = xml.split('\n')
+        xml[1] = xml[1].split('>')[0] + ' xmlns:x="x">'
+        xml = '\n'.join(xml)
+        self.tree = ElementTree.fromstring(xml)
+        self.ns = {'x': 'x'}
 
     def write(self):
         open(self.fn, 'w').write(ElementTree.tostring(self.tree))
@@ -13,7 +17,3 @@ class Parser(object):
     def swap(self, old, new):
         p = old.getparent()
         p.replace(old, new)
-
-    def add_sibling(self, olds_dict, new):
-        p = olds_dict.values()[0].getparent()
-        p.append(new)

@@ -13,66 +13,44 @@ class MixerConsole(Parser):
         self.channel_banks = {}  # maps bank id to XML ChannelShowHidPresets
         self.channels_in_bank = {}  # maps UIDs to XML UID
         self.max = 0
-    
-        for child in self.tree:
-            id = child.get("x:id")
-            if id == "channelSettings":
-                self.parse_channel_settings(child)
-            elif id == "layoutSettings":
-                pass
-            elif id == "channelBanks":
-                self.parse_channel_banks(child)
-            elif id == "HardwareControls":
-                pass
 
-    def parse_channel_settings(self, root):
-        for child in root:
-            uid = child.get("path")
-            uid = '{%s-%s-%s-%s-%s}' % (uid[:8], uid[8:12],
-                                        uid[12:16], uid[16:20], uid[20:])
-            for a in child:
-                if a.tag == "Attributes":
-                    self.max = max(self.max, int(a.get("order")))
-            self.channel_settings[uid] = child
+        for c in self.tree.xpath(
+                "Attributes[@x:id='channelSettings']/*", namespaces=self.ns):
+            self.max = max(self.max, int(c[0].get("order")))
+            self.channel_settings[self.fix_uid(c.get("path"))] = c
 
-    def parse_channel_banks(self, root):
-        for child in root:
-            id = child.get("x:id")
-            for a in child:
-                if a.get("x:id") == "visible":
-                    for b in a:
-                        self.channels_in_bank[b.get("uid")] = b
-            self.channel_banks[id] = child
-            
+        for c in self.tree.xpath(
+                "Attributes[@x:id='channelBanks']/*", namespaces=self.ns):
+            self.channel_banks[c.get("{x}id")] = c
+            for t in c.xpath("List[@x:id='visible']/UID", namespaces=self.ns):
+                self.channels_in_bank[t.get("uid")] = t
+        
+    def fix_uid(self, uid):
+        return '{%s-%s-%s-%s-%s}' % (uid[:8], uid[8:12],
+                                     uid[12:16], uid[16:20], uid[20:])
+
     def get_visible_in_bank(self, bank):
-        visible = []
-        for child in self.channel_banks[bank]:
-            if child.get("x:id") == "visible":
-                for v in child:
-                    visible.append(v.get("uid"))
-        return visible
+        return [v.get("uid") for v in self.channel_banks[bank].xpath(
+            "List[@x:id='visible']/UID", namespaces=self.ns)]
 
     def add_channel_setting(self, channel_setting):
-        self.add_sibling(self.channel_settings, channel_setting)
-        uid = channel_setting.get("path")
-        uid = '{%s-%s-%s-%s-%s}' % (uid[:8], uid[8:12],
-                                    uid[12:16], uid[16:20], uid[20:])
-        for a in channel_setting:
-            if a.tag == "Attributes":
-                a.set("order", str(int(a.get("order")) + self.max))
+        self.tree.xpath(
+            "Attributes[@x:id='channelSettings']",
+            namespaces=self.ns).append(channel_setting)
+        a = channel_setting.xpath("Attributes")[0]
+        a.set("order", str(int(a.get("order")) + self.max))
+        uid = self.fix_uid(channel_setting.get("path"))
         self.channel_settings[uid] = channel_setting
 
     def add_channel_to_banks(self, channel):
-        for id in self.channel_banks:
-            v = None
-            for c in self.channel_banks[id]:
-                if c.get("x:id") == "visible":
-                    v = c
-            if v is None:
-                parser = etree.XMLParser(recover=True)
-                v = etree.fromstring('<List x:id="visible"/>', parser)
-                self.channel_banks[id].append(v)
-            v.append(channel)
+        for bank in self.channel_banks.values():
+            v = bank.xpath("List[@x:id='visible']", namespaces=self.ns)
+            if not len(v):
+                v = etree.SubElement(bank, "List")
+                v.set("{x}id", "visible")
+                bank.append(v)
+                v = [v]
+            v[0].append(channel)
             
 if __name__ == "__main__":
     mc = MixerConsole(sys.argv[1])

@@ -11,51 +11,30 @@ class MusicTrackDevice(Parser):
 
         self.channels = {}  # maps UID to XML MusicTrackChannel
 
-        for child in self.tree:
-            id = child.get("x:id")
-            if id == "channels":
-                self.parse_channels(child)
-
-    def parse_channels(self, root):
-        for child in root:
-            name = child.get("name")
-            if name == "MusicTrack":
-                for channel in child:
-                    for a in channel:
-                        if a.get("x:id") == "uniqueID":
-                            uid = a.get("uid")
-                    self.channels[uid] = channel
+        for c in self.tree.xpath(
+                "Attributes[@name='Channels']/ChannelGroup/*"):
+            self.channels[c.xpath("UID")[0].get("uid")] = c
 
     def get_instrument_out(self, uid):
-        for child in self.channels[uid]:
-            if child.get("x:id") == "instrumentOut":
-                return child.get("objectID").split('/')[0]
+        c = self.channels[uid].xpath(
+            "Connection[@x:id='instrumentOut']", namespaces=self.ns)
+        return c[0].get("objectID").split('/')[0] if len(c) else None
 
     def get_destination(self, uid):
-        for child in self.channels[uid]:
-            if child.get("x:id") == "destination":
-                return child.get("objectID").split('/')[0]
+        c = self.channels[uid].xpath(
+            "Connection[@x:id='destination']", namespaces=self.ns)
+        return c[0].get("objectID").split('/')[0] if len(c) else None
 
     def add_channel(self, channel):
-        if len(self.channels):
-            self.add_sibling(self.channels, channel)
-        else:
-            for child in self.tree:
-                if child.get("x:id") == "channels":
-                    cg = None
-                    for a in child:
-                        if a.get("name" == "MusicTrack"):
-                            cg = a
-                    if not cg:
-                        cg = etree.Element("ChannelGroup")
-                        cg.set("name", "MusicTrack")
-                        cg.set("flags", "1")
-                        child.append(cg)
-                    cg.append(channel)
-        for a in channel:
-            if a.get("x:id") == "uniqueID":
-                uid = a.get("uid")
-        self.channels[uid] = channel
+        cg = self.tree.xpath("Attributes/ChannelGroup[@name='MusicTrack']")
+        if not len(cg):
+            cg = etree.fromstring(
+                "<ChannelGroup name='MusicTrack' flags='1'/>")
+            self.tree.xpath("Attributes")[0].append(cg)
+            cg = [cg]
+        cg[0].append(channel)
+
+        self.channels[channel.xpath("UID")[0].get("uid")] = channel
 
             
 if __name__ == "__main__":
