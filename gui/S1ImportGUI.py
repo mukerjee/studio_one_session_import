@@ -16,14 +16,26 @@ class S1ImportGUIController(Cocoa.NSWindowController):
     srcSongLabel = Cocoa.objc.IBOutlet()
     dstSongLabel = Cocoa.objc.IBOutlet()
     trackTextBox = Cocoa.objc.IBOutlet()
+    tempomapCheckBox = Cocoa.objc.IBOutlet()
+    timesigmapCheckBox = Cocoa.objc.IBOutlet()
+    markertrackCheckBox = Cocoa.objc.IBOutlet()
+    arrangertrackCheckBox = Cocoa.objc.IBOutlet()
 
+    @Cocoa.objc.IBAction
+    def timesigmap_(self, sender):
+        self.timesigmap_enabled = sender.state()
+
+    @Cocoa.objc.IBAction
+    def markertrack_(self, sender):
+        self.markertrack_enabled = sender.state()
+
+    @Cocoa.objc.IBAction
+    def arrangertrack_(self, sender):
+        self.arrangertrack_enabled = sender.state()
+    
     def init(self):
         self.src_song = None
         self.dst_song = None
-        self.tempomap_enabled = True
-        self.timesigmap_enabled = True
-        self.markertrack_enabled = True
-        self.arrangertrack_enabled = True
         self.srcSongLabel.setStringValue_("")
         self.dstSongLabel.setStringValue_("")
         self.trackTextBox.setStringValue_("")
@@ -65,31 +77,15 @@ class S1ImportGUIController(Cocoa.NSWindowController):
                 + '.song')
 
     @Cocoa.objc.IBAction
-    def tempomap_(self, sender):
-        self.tempomap_enabled = sender.state()
-
-    @Cocoa.objc.IBAction
-    def timesigmap_(self, sender):
-        self.timesigmap_enabled = sender.state()
-
-    @Cocoa.objc.IBAction
-    def markertrack_(self, sender):
-        self.markertrack_enabled = sender.state()
-
-    @Cocoa.objc.IBAction
-    def arrangertrack_(self, sender):
-        self.arrangertrack_enabled = sender.state()
-    
-    @Cocoa.objc.IBAction
     def import_(self, sender):
         if self.dst_song:
-            if self.tempomap_enabled:
+            if self.tempomapCheckBox.state():
                 replace_tempo_map(self.src_song, self.dst_song)
-            if self.timesigmap_enabled:
+            if self.timesigmapCheckBox.state():
                 replace_time_sig_map(self.src_song, self.dst_song)
-            if self.markertrack_enabled:
+            if self.markertrackCheckBox.state():
                 replace_marker_track(self.src_song, self.dst_song)
-            if self.arrangertrack_enabled:
+            if self.arrangertrackCheckBox.state():
                 replace_arranger_track(self.src_song, self.dst_song)
             for track in self.trackTextBox.stringValue().split('\n'):
                 import_track(self.src_song, self.dst_song, track)
