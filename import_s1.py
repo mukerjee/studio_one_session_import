@@ -2,16 +2,18 @@
 
 import sys
 from song_model import SongModel
-from util import import_track
+from util import replace_tempo_map, replace_time_sig_map, \
+    replace_marker_track, import_track
 
 src_song = SongModel(sys.argv[1])
 dst_song = SongModel(sys.argv[2])
 
-dst_song.song.set_tempo_map(src_song.song.tempo_map)
-dst_song.song.set_time_sig_map(src_song.song.time_sig_map)
-dst_song.song.set_marker_track(src_song.song.marker_track)
+replace_tempo_map(src_song, dst_song)
+replace_time_sig_map(src_song, dst_song)
+replace_marker_track(src_song, dst_song)
 
 tracks = src_song.song.track_names.keys()
+print tracks
 for track in tracks:
     import_track(src_song, dst_song, track)
 

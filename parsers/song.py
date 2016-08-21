@@ -23,7 +23,7 @@ class Song(Parser):
                             namespaces=self.ns)[0]
 
         self.marker_track = t.xpath("MarkerTrack")[0]
-        self.time_zone_map = t.xpath("ArrangerTrack")[0]
+        self.arranger_track = t.xpath("ArrangerTrack")[0]
 
         self.tracks = OrderedDict()  # maps trackID to XML MediaTrack
         self.track_names = OrderedDict()  # maps track names to trackID

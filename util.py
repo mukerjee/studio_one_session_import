@@ -6,6 +6,22 @@ import shutil
 KEEP_CLIPS = True
 
 
+def replace_tempo_map(src, dst):
+    dst.song.set_tempo_map(src.song.tempo_map)
+
+
+def replace_time_sig_map(src, dst):
+    dst.song.set_time_sig_map(src.song.time_sig_map)
+
+
+def replace_marker_track(src, dst):
+    dst.song.set_marker_track(src.song.marker_track)
+
+
+def replace_arranger_track(src, dst):
+    dst.song.set_arranger_track(src.song.arranger_track)
+
+
 def import_track(src, dst, track_name):
     uid = src.song.track_names[track_name]
     track = src.song.tracks[uid]
