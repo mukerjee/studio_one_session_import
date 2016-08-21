@@ -16,7 +16,8 @@ class MediaPool(Parser):
         for c in self.tree.xpath(
                 "Attributes/MediaFolder[@name='Music']/MusicClip | " +
                 "Attributes/MediaFolder[@name='Audio']/AudioClip | " +
-                "Attributes/MediaFolder[@name='Sound']/ExternalClip"):
+                "Attributes/MediaFolder[@name='Sound']/ExternalClip | " +
+                "Attributes/MediaFolder[@name='AudioEffects']/*"):
             self.clips[c.get("mediaID")] = c
 
         for p in self.tree.xpath(
@@ -30,19 +31,24 @@ class MediaPool(Parser):
     def get_file(self, mediaID):
         return self.clips[mediaID].xpath("Url")[0].get("url").split("//")[1]
 
+    def get_clip_effect_files(self, mediaID):
+        cs = self.clips[mediaID].xpath("List/AudioEffectClipItem/Url")
+        return [c.get("url").split("media://")[1] for c in cs]
+
     def get_doc_path(self):
         return self.doc_path.get("url").split("//")[1]
 
     def add_clip(self, clip):
         d = {"MusicClip": "Music", "AudioClip": "Audio",
-             "ExternalClip": "Sound"}
+             "ExternalClip": "Sound", 'AudioEffectClip': 'AudioEffects'}
         name = d[clip.tag]
         mf = self.tree.xpath("Attributes/MediaFolder[@name='%s']" % name)
         if not len(mf):
             mf = etree.fromstring('<MediaFolder name="%s"/>' % name)
             self.tree.xpath("Attributes[@x:id='rootFolder']",
                             namespaces=self.ns)[0].append(mf)
-        mf.append(clip)
+            mf = [mf]
+        mf[0].append(clip)
         self.clips[clip.get("mediaID")] = clip
 
     def add_package(self, package):

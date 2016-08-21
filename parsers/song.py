@@ -62,6 +62,12 @@ class Song(Parser):
             "*/MusicPart | */AudioEvent | */*/*/MusicPart | */*/*/AudioEvent")
         return [mp.get("clipID") for mp in c]
 
+    def get_clip_effect_ids(self, trackID):
+        c = self.tracks[trackID].xpath(
+            "*/AudioEvent/Attributes[@x:id='effects'] | " +
+            "*/*/*/AudioEvent/Attributes[@x:id='effects']", namespaces=self.ns)
+        return [ce.get("clipID") for ce in c]
+
     def get_automation(self, trackID):
         a = self.tracks[trackID].xpath(
             "Attributes[@x:id='AutomationRegionList']/AutomationRegion/Url",
