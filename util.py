@@ -22,6 +22,11 @@ def replace_arranger_track(src, dst):
     dst.song.set_arranger_track(src.song.arranger_track)
 
 
+def import_melodyne_data(src, dst):
+    if os.path.exists(src.prefix + '/ARA/'):
+        shutil.copytree(src.prefix + '/ARA/', dst.prefix + '/ARA/')
+
+
 def import_track(src, dst, track_name):
     uid = src.song.track_names[track_name]
     track = src.song.tracks[uid]
@@ -55,6 +60,14 @@ def import_track(src, dst, track_name):
                     # TODO: External files?
                     pass
 
+        for clip_effect in src.song.get_clip_effect_ids(uid):
+            dst.mediapool.add_clip(src.mediapool.clips[clip_effect])
+            for cef in src.mediapool.get_clip_effect_files(clip_effect):
+                clip_name = cef.split("/Presets/")[1].split("/")[0]
+                if not os.path.exists(dst.prefix + '/Presets/' + clip_name):
+                    os.makedirs(dst.prefix + '/Presets/' + clip_name)
+                shutil.copyfile(src.prefix + cef, dst.prefix + cef)
+                
         ae = src.song.get_automation(uid)
         for a in ae:
             if not os.path.exists(dst.prefix + '/Envelopes/' + track_name):

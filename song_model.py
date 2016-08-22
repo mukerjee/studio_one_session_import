@@ -6,6 +6,7 @@ sys.path.append("./parsers/")
 import os
 import zipfile
 import shutil
+import tempfile
 
 from audio_mixer import AudioMixer
 from audio_synth_folder import AudioSynthFolder
@@ -15,16 +16,17 @@ from music_track_device import MusicTrackDevice
 from song import Song
 
 DONT_OVERWRITE = True
+USE_TEMP = True
 
 
 class SongModel(object):
     def __init__(self, fn):
         self.is_clean = True
         self.fn = fn
-        self.prefix = os.path.splitext(fn)[0]
+        self.prefix = None
         self.extract()
         if DONT_OVERWRITE:
-            self.fn = self.prefix + '-new.song'
+            self.fn = os.path.splitext(self.fn)[0] + '-new.song'
         self.song = Song(self.prefix + '/Song/song.xml')
         self.musictrackdevice = MusicTrackDevice(
             self.prefix + '/Devices/musictrackdevice.xml')
@@ -37,6 +39,10 @@ class SongModel(object):
 
     def extract(self):
         f = zipfile.ZipFile(self.fn, 'r')
+        if USE_TEMP:
+            self.prefix = tempfile.mkdtemp()
+        else:
+            self.prefix = os.path.splitext(self.fn)[0]
         f.extractall(self.prefix)
         f.close()
         self.is_clean = False
@@ -52,7 +58,8 @@ class SongModel(object):
         os.chdir(old_dir)
 
     def delete_temp(self):
-        shutil.rmtree(self.prefix)
+        if not self.is_clean:
+            shutil.rmtree(self.prefix)
         self.is_clean = True
 
     def clean(self):
