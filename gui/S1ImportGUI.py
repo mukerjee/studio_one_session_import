@@ -10,7 +10,8 @@ sys.path.append('/Library/Python/2.7/site-packages/' +
                 'lxml-3.3.1-py2.7-macosx-10.9-intel.egg')
 from song_model import SongModel
 from util import replace_tempo_map, replace_time_sig_map, \
-    replace_marker_track, replace_arranger_track, import_track
+    replace_marker_track, replace_arranger_track, import_track, \
+    import_melodyne_data
 
 
 TRACK_OPTIONS = (
@@ -18,9 +19,10 @@ TRACK_OPTIONS = (
     'inserts',
     'automation',
     'sends',
-    'busses / destinations',
+    'buses / destinations',
     'event FX',
-    'melodyne',
+    'instrument',
+    'vca',
 )
 
 
@@ -32,6 +34,7 @@ class S1ImportGUIController(Cocoa.NSWindowController):
     timesigmapCheckBox = Cocoa.objc.IBOutlet()
     markertrackCheckBox = Cocoa.objc.IBOutlet()
     arrangertrackCheckBox = Cocoa.objc.IBOutlet()
+    melodyneCheckBox = Cocoa.objc.IBOutlet()
 
     def init(self):
         self.src_song = None
@@ -39,6 +42,7 @@ class S1ImportGUIController(Cocoa.NSWindowController):
         self.srcSongLabel.setStringValue_("")
         self.dstSongLabel.setStringValue_("")
         self.pythonItems = {}
+        self.import_set = {}
 
     def open_box(self):
         op = Cocoa.NSOpenPanel.openPanel()
@@ -66,6 +70,8 @@ class S1ImportGUIController(Cocoa.NSWindowController):
                 os.path.basename(self.src_song.fn).split('-new.song')[0]
                 + '.song')
             self.trackOutlineView.reloadData()
+            self.import_set = {track: TRACK_OPTIONS
+                               for track in self.src_song.song.track_names.keys()}
 
     @Cocoa.objc.IBAction
     def opendst_(self, sender):
@@ -87,9 +93,11 @@ class S1ImportGUIController(Cocoa.NSWindowController):
                 replace_marker_track(self.src_song, self.dst_song)
             if self.arrangertrackCheckBox.state():
                 replace_arranger_track(self.src_song, self.dst_song)
-            # TODO:
-            # for track in self.trackTextBox.stringValue().split('\n'):
-            #     import_track(self.src_song, self.dst_song, track)
+            if self.melodyneCheckBox.state():
+                import_melodyne_data(self.src_song, self.dst_song)
+            for track in self.import_set:
+                import_track(self.src_song, self.dst_song, track,
+                             self.import_set[track])
             self.dst_song.write()
         self.quit_(None)
 
@@ -132,15 +140,17 @@ class S1ImportGUIController(Cocoa.NSWindowController):
 
     def outlineView_child_ofItem_(self, outlineView, index, item):
         if item is None:
-            return self.getPythonItem(self.src_song.song.track_names.keys()[index])
+            name, uid = self.src_song.song.track_names.items()[index]
+            return self.getPythonItem(name,
+                                      self.src_song.song.get_track_type(uid))
         else:
-            return self.getPythonItem(TRACK_OPTIONS[index])
+            return self.getPythonItem(TRACK_OPTIONS[index], "")
 
-    def getPythonItem(self, item):
+    def getPythonItem(self, item, type):
         if item in self.pythonItems:
             return self.pythonItems[item]
         else:
-            i = PythonItem(item)
+            i = PythonItem(item, type)
             self.pythonItems[item] = i
             return i
 
@@ -153,19 +163,24 @@ class S1ImportGUIController(Cocoa.NSWindowController):
             self, outlineView, tableColumn, item):
         # print 'view for %s' % item.name
 
-        tcv = outlineView.makeViewWithIdentifier_owner_("MainCell", self)
-        tcv.textField().setStringValue_(item.name)
-        
-        #NSImage* cellImage;
-        #
-        #if (HAS_KEY(item,@"children")) cellImage = [[NSWorkspace sharedWorkspace] iconForFileType:NSFileTypeForHFSTypeCode(kGenericFolderIcon)];
-        #else cellImage = [[NSWorkspace sharedWorkspace] iconForFileType:NSFileTypeRegular];
-        
-        #[cellImage setSize:NSMakeSize(15.0, 15.0)];
-        
-        #tcv.imageView.image = cellImage;
-        
-        return tcv
+        if tableColumn.identifier() == "MainCell":            
+            tcv = outlineView.makeViewWithIdentifier_owner_("MainCell", self)
+            tcv.textField().setStringValue_(item.name)
+
+            #NSImage* cellImage;
+            #
+            #if (HAS_KEY(item,@"children")) cellImage = [[NSWorkspace sharedWorkspace] iconForFileType:NSFileTypeForHFSTypeCode(kGenericFolderIcon)];
+            #else cellImage = [[NSWorkspace sharedWorkspace] iconForFileType:NSFileTypeRegular];
+
+            #[cellImage setSize:NSMakeSize(15.0, 15.0)];
+
+            #tcv.imageView.image = cellImage;
+
+            return tcv
+        else:
+            tcv = outlineView.makeViewWithIdentifier_owner_("MainCell", self)
+            tcv.textField().setStringValue_(item.type)
+            return tcv
 
 
 class PythonItem(NSObject):
@@ -176,8 +191,9 @@ class PythonItem(NSObject):
         # "Pythonic" constructor
         return cls.alloc().init()
 
-    def __init__(self, name):
+    def __init__(self, name, type):
         self.name = name
+        self.type = type
 
 if __name__ == "__main__":
     app = Cocoa.NSApplication.sharedApplication()

@@ -14,8 +14,10 @@ replace_marker_track(src_song, dst_song)
 
 tracks = src_song.song.track_names.keys()
 print tracks
+options = ('clips', 'inserts', 'automation', 'sends',
+           'buses / destinations', 'event FX', 'instrument', 'vca')
 for track in tracks:
-    import_track(src_song, dst_song, track)
+    import_track(src_song, dst_song, track, options)
 
 import_melodyne_data(src_song, dst_song)
     
