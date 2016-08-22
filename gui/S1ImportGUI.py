@@ -1,20 +1,16 @@
 import Cocoa
 import AppKit
-import PyObjCTools.Signals
 from PyObjCTools import AppHelper
 from Foundation import NSObject
 import os
 
 import sys
 sys.path.append('./')
-sys.path.append('/Library/Python/2.7/site-packages/lxml-3.3.1-py2.7-macosx-10.9-intel.egg')
+sys.path.append('/Library/Python/2.7/site-packages/' +
+                'lxml-3.3.1-py2.7-macosx-10.9-intel.egg')
 from song_model import SongModel
 from util import replace_tempo_map, replace_time_sig_map, \
     replace_marker_track, replace_arranger_track, import_track
-
-
-import pkgutil
-#PyObjCTools.Signals.dumpStackOnFatalSignal()
 
 
 TRACK_OPTIONS = (
@@ -27,35 +23,22 @@ TRACK_OPTIONS = (
     'melodyne',
 )
 
+
 class S1ImportGUIController(Cocoa.NSWindowController):
     srcSongLabel = Cocoa.objc.IBOutlet()
     dstSongLabel = Cocoa.objc.IBOutlet()
-    trackTextBox = Cocoa.objc.IBOutlet()
-    trackTableView = Cocoa.objc.IBOutlet()
     trackOutlineView = Cocoa.objc.IBOutlet()
     tempomapCheckBox = Cocoa.objc.IBOutlet()
     timesigmapCheckBox = Cocoa.objc.IBOutlet()
     markertrackCheckBox = Cocoa.objc.IBOutlet()
     arrangertrackCheckBox = Cocoa.objc.IBOutlet()
 
-    @Cocoa.objc.IBAction
-    def timesigmap_(self, sender):
-        self.timesigmap_enabled = sender.state()
-
-    @Cocoa.objc.IBAction
-    def markertrack_(self, sender):
-        self.markertrack_enabled = sender.state()
-
-    @Cocoa.objc.IBAction
-    def arrangertrack_(self, sender):
-        self.arrangertrack_enabled = sender.state()
-    
     def init(self):
         self.src_song = None
         self.dst_song = None
         self.srcSongLabel.setStringValue_("")
         self.dstSongLabel.setStringValue_("")
-        self.trackTextBox.setStringValue_("")
+        self.pythonItems = {}
 
     def open_box(self):
         op = Cocoa.NSOpenPanel.openPanel()
@@ -82,9 +65,6 @@ class S1ImportGUIController(Cocoa.NSWindowController):
             self.srcSongLabel.setStringValue_(
                 os.path.basename(self.src_song.fn).split('-new.song')[0]
                 + '.song')
-            self.trackTextBox.setStringValue_(
-                '\n'.join(self.src_song.song.track_names.keys()))
-            self.trackTableView.reloadData()
             self.trackOutlineView.reloadData()
 
     @Cocoa.objc.IBAction
@@ -107,8 +87,9 @@ class S1ImportGUIController(Cocoa.NSWindowController):
                 replace_marker_track(self.src_song, self.dst_song)
             if self.arrangertrackCheckBox.state():
                 replace_arranger_track(self.src_song, self.dst_song)
-            for track in self.trackTextBox.stringValue().split('\n'):
-                import_track(self.src_song, self.dst_song, track)
+            # TODO:
+            # for track in self.trackTextBox.stringValue().split('\n'):
+            #     import_track(self.src_song, self.dst_song, track)
             self.dst_song.write()
         self.quit_(None)
 
@@ -120,80 +101,60 @@ class S1ImportGUIController(Cocoa.NSWindowController):
             self.dst_song.clean()
         AppKit.NSApp().terminate_(self)
 
-
     # NSTableViewDataSource
-    def numberOfRowsInTableView_(self, tableView):
-        print 'num rows'
-        if not hasattr(self, 'src_song') or self.src_song == None:
-            return 0
-        else:
-            return len(self.src_song.song.track_names.keys())
-
-    # NSTableViewDelegate
-    def tableView_viewForTableColumn_row_(self, tableView, tableColumn, row):
-        print 'getting table view for row %i' % row
-        # Get an existing cell with the MyView identifier if it exists
-        result = tableView.makeViewWithIdentifier_owner_('MyView', self);
-     
-        # There is no existing cell to reuse so create a new one
-        if (result == None):
-            # Create the new NSTextField with a frame of the {0,0} with the width of the table.
-            # Note that the height of the frame is not really relevant, because the row height will modify the height.
-            result = Cocoa.NSTextField.alloc().initWithFrame_(Cocoa.NSMakeRect(0, 0, 100, 0))
-     
-            # The identifier of the NSTextField instance is set to MyView.
-            # This allows the cell to be reused.
-            result.setIdentifier_('MyView')
-     
-        # result is now guaranteed to be valid, either as a reused cell
-        # or as a new cell, so set the stringValue of the cell to the
-        # nameArray value at row
-        result.setStringValue_(self.src_song.song.track_names.keys()[row])
-     
-        # Return the result
-        return result
+    # TODO: I don't think this is called ever
+    # def numberOfRowsInTableView_(self, tableView):
+    #     print 'num rows'
+    #     print 'omgomgomgomg'
+    #     if not hasattr(self, 'src_song') or self.src_song is None:
+    #         return 0
+    #     else:
+    #         return len(self.src_song.song.track_names.keys())
 
     # NSOutlineViewDataSource
     def outlineView_numberOfChildrenOfItem_(self, outlineView, item):
         print 'num children of %s' % item
-        if item == None:
-            if not hasattr(self, 'src_song') or self.src_song == None:
+        if item is None:
+            if not hasattr(self, 'src_song') or self.src_song is None:
                 return 0
             else:
                 return len(self.src_song.song.track_names.keys())
-        elif item in TRACK_OPTIONS:
+        elif item.name in TRACK_OPTIONS:
             return 0
         else:
             return len(TRACK_OPTIONS)
     
     def outlineView_isItemExpandable_(self, outlineView, item):
-        print 'Expandable?  %s' % item
-        if item in TRACK_OPTIONS:
-            print '168'
-            return False
+        if item:
+            return False if item.name in TRACK_OPTIONS else True
         else:
-            print '171'
             return True
 
     def outlineView_child_ofItem_(self, outlineView, index, item):
-        print 'Child?  %s' % item
-        if item == None:
-            print '174'
-            return self.src_song.song.track_names.keys()[index]
+        if item is None:
+            return self.getPythonItem(self.src_song.song.track_names.keys()[index])
         else:
-            print '177'
-            return TRACK_OPTIONS[index]
-    
-    def outlineView_objectValueForTableColumn_byItem_(self, outlineView, tableColumn, item):
-       print item
-       print '184'
-       return item
+            return self.getPythonItem(TRACK_OPTIONS[index])
 
+    def getPythonItem(self, item):
+        if item in self.pythonItems:
+            return self.pythonItems[item]
+        else:
+            i = PythonItem(item)
+            self.pythonItems[item] = i
+            return i
 
-    def outlineView_viewForTableColumn_item_(self, outlineView, tableColumn, item):
-        print 'view for %s' % item
+    # TODO: not sure what the point of this call is
+    def outlineView_objectValueForTableColumn_byItem_(
+            self, outlineView, tableColumn, item):
+        return item.name
+
+    def outlineView_viewForTableColumn_item_(
+            self, outlineView, tableColumn, item):
+        # print 'view for %s' % item.name
+
         tcv = outlineView.makeViewWithIdentifier_owner_("MainCell", self)
-        tcv.textField().setStringValue_(item)
+        tcv.textField().setStringValue_(item.name)
         
         #NSImage* cellImage;
         #
@@ -206,6 +167,17 @@ class S1ImportGUIController(Cocoa.NSWindowController):
         
         return tcv
 
+
+class PythonItem(NSObject):
+
+    """Wrapper class for items to be displayed in the outline view."""
+
+    def __new__(cls, *args, **kwargs):
+        # "Pythonic" constructor
+        return cls.alloc().init()
+
+    def __init__(self, name):
+        self.name = name
 
 if __name__ == "__main__":
     app = Cocoa.NSApplication.sharedApplication()
