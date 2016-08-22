@@ -14,7 +14,7 @@ from util import replace_tempo_map, replace_time_sig_map, \
 
 
 import pkgutil
-PyObjCTools.Signals.dumpStackOnFatalSignal()
+#PyObjCTools.Signals.dumpStackOnFatalSignal()
 
 
 TRACK_OPTIONS = (
@@ -174,7 +174,7 @@ class S1ImportGUIController(Cocoa.NSWindowController):
         else:
             print '171'
             return True
-    
+
     def outlineView_child_ofItem_(self, outlineView, index, item):
         print 'Child?  %s' % item
         if item == None:
@@ -184,10 +184,10 @@ class S1ImportGUIController(Cocoa.NSWindowController):
             print '177'
             return TRACK_OPTIONS[index]
     
-    #def outlineView_objectValueForTableColumn_byItem_(self, outlineView, tableColumn, item):
-    #    print item
-    #    print '184'
-    #    return item
+    def outlineView_objectValueForTableColumn_byItem_(self, outlineView, tableColumn, item):
+       print item
+       print '184'
+       return item
 
 
     def outlineView_viewForTableColumn_item_(self, outlineView, tableColumn, item):
