@@ -30,8 +30,8 @@ class S1ImportGUIController(Cocoa.NSWindowController):
     srcSongLabel = Cocoa.objc.IBOutlet()
     dstSongLabel = Cocoa.objc.IBOutlet()
     trackOutlineView = Cocoa.objc.IBOutlet()
-    tempomapCheckBox = Cocoa.objc.IBOutlet()
-    timesigmapCheckBox = Cocoa.objc.IBOutlet()
+    tempoTimeSigMapCheckBox = Cocoa.objc.IBOutlet()
+    # timesigmapCheckBox = Cocoa.objc.IBOutlet()
     markertrackCheckBox = Cocoa.objc.IBOutlet()
     arrangertrackCheckBox = Cocoa.objc.IBOutlet()
     melodyneCheckBox = Cocoa.objc.IBOutlet()
@@ -43,6 +43,7 @@ class S1ImportGUIController(Cocoa.NSWindowController):
         self.dstSongLabel.setStringValue_("")
         self.pythonItems = {}
         self.import_set = {}
+        self.checkBox_ids = {}
 
     def open_box(self):
         op = Cocoa.NSOpenPanel.openPanel()
@@ -57,7 +58,6 @@ class S1ImportGUIController(Cocoa.NSWindowController):
 
     def windowDidLoad(self):
         Cocoa.NSWindowController.windowDidLoad(self)
-        print 'did load'
         if not hasattr(self, 'src_song'):
             self.init()
 
@@ -70,7 +70,7 @@ class S1ImportGUIController(Cocoa.NSWindowController):
                 os.path.basename(self.src_song.fn).split('-new.song')[0]
                 + '.song')
             self.trackOutlineView.reloadData()
-            self.import_set = {track: TRACK_OPTIONS
+            self.import_set = {track: list(TRACK_OPTIONS)
                                for track in self.src_song.song.track_names.keys()}
 
     @Cocoa.objc.IBAction
@@ -85,29 +85,51 @@ class S1ImportGUIController(Cocoa.NSWindowController):
     @Cocoa.objc.IBAction
     def import_(self, sender):
         if self.dst_song:
-            if self.tempomapCheckBox.state():
+            if self.tempoTimeSigMapCheckBox.state():
                 replace_tempo_map(self.src_song, self.dst_song)
-            if self.timesigmapCheckBox.state():
                 replace_time_sig_map(self.src_song, self.dst_song)
+            # if self.timesigmapCheckBox.state():
             if self.markertrackCheckBox.state():
                 replace_marker_track(self.src_song, self.dst_song)
             if self.arrangertrackCheckBox.state():
                 replace_arranger_track(self.src_song, self.dst_song)
             if self.melodyneCheckBox.state():
                 import_melodyne_data(self.src_song, self.dst_song)
-            for track in self.import_set:
-                import_track(self.src_song, self.dst_song, track,
-                             self.import_set[track])
+            for track in self.src_song.song.track_names:
+                if len(self.import_set[track]):
+                    import_track(self.src_song, self.dst_song, track,
+                                 self.import_set[track])
             self.dst_song.write()
         self.quit_(None)
 
+    # @Cocoa.objc.IBAction
+    # def quit_(self, sender):
+    #     if self.src_song:
+    #         self.src_song.clean()
+    #     if self.dst_song:
+    #         self.dst_song.clean()
+    #     AppKit.NSApp().terminate_(self)
+
     @Cocoa.objc.IBAction
-    def quit_(self, sender):
-        if self.src_song:
-            self.src_song.clean()
-        if self.dst_song:
-            self.dst_song.clean()
-        AppKit.NSApp().terminate_(self)
+    def trackCheck_(self, sender):
+        my_p, me = self.checkBox_ids[sender]
+        parent_checkbox = [s for (s, (p, n)) in
+                           self.checkBox_ids.items() if n == my_p]
+
+        if my_p:
+            if sender.state():
+                self.import_set[my_p].append(me)
+            else:
+                self.import_set[my_p].remove(me)
+        else:
+            self.import_set[me] = list(TRACK_OPTIONS) if sender.state() \
+                                  else []
+
+        for c in [s for (s, (p, n)) in self.checkBox_ids.items() if p == me]:
+            c.setState_(sender.state())
+
+        if my_p:
+            parent_checkbox[0].setState_(len(self.import_set[my_p]))
 
     # NSTableViewDataSource
     # TODO: I don't think this is called ever
@@ -121,7 +143,6 @@ class S1ImportGUIController(Cocoa.NSWindowController):
 
     # NSOutlineViewDataSource
     def outlineView_numberOfChildrenOfItem_(self, outlineView, item):
-        print 'num children of %s' % item
         if item is None:
             if not hasattr(self, 'src_song') or self.src_song is None:
                 return 0
@@ -142,16 +163,17 @@ class S1ImportGUIController(Cocoa.NSWindowController):
         if item is None:
             name, uid = self.src_song.song.track_names.items()[index]
             return self.getPythonItem(name,
-                                      self.src_song.song.get_track_type(uid))
+                                      self.src_song.song.get_track_type(uid),
+                                      item)
         else:
-            return self.getPythonItem(TRACK_OPTIONS[index], "")
+            return self.getPythonItem(TRACK_OPTIONS[index], "", item)
 
-    def getPythonItem(self, item, type):
+    def getPythonItem(self, item, type, parent):
         if item in self.pythonItems:
-            return self.pythonItems[item]
+            return self.pythonItems[(parent, item)]
         else:
-            i = PythonItem(item, type)
-            self.pythonItems[item] = i
+            i = PythonItem(item, type, parent)
+            self.pythonItems[(parent, item)] = i
             return i
 
     # TODO: not sure what the point of this call is
@@ -161,27 +183,27 @@ class S1ImportGUIController(Cocoa.NSWindowController):
 
     def outlineView_viewForTableColumn_item_(
             self, outlineView, tableColumn, item):
-        # print 'view for %s' % item.name
+        tcv = outlineView.makeViewWithIdentifier_owner_("MainCell", self)
+        n = "%s (%s)" % (item.name, item.type) if item.type else item.name
+        tcv.textField().setStringValue_(n)
 
-        if tableColumn.identifier() == "MainCell":            
-            tcv = outlineView.makeViewWithIdentifier_owner_("MainCell", self)
-            tcv.textField().setStringValue_(item.name)
-
-            #NSImage* cellImage;
-            #
-            #if (HAS_KEY(item,@"children")) cellImage = [[NSWorkspace sharedWorkspace] iconForFileType:NSFileTypeForHFSTypeCode(kGenericFolderIcon)];
-            #else cellImage = [[NSWorkspace sharedWorkspace] iconForFileType:NSFileTypeRegular];
-
-            #[cellImage setSize:NSMakeSize(15.0, 15.0)];
-
-            #tcv.imageView.image = cellImage;
-
-            return tcv
+        p = item.get_parent_name()
+        if p:
+            tcv.checkBox.setState_(item.name in self.import_set[p])
         else:
-            tcv = outlineView.makeViewWithIdentifier_owner_("MainCell", self)
-            tcv.textField().setStringValue_(item.type)
-            return tcv
+            tcv.checkBox.setState_(len(self.import_set[item.name]))
 
+        dups = [k for k, v in self.checkBox_ids.items() if v == (p, item.name)]
+        for d in dups:
+            del self.checkBox_ids[d]
+        self.checkBox_ids[tcv.checkBox] = (p, item.name)
+
+        return tcv
+            
+
+class TableCellViewWithCheckBox(Cocoa.NSTableCellView):
+    checkBox = Cocoa.objc.IBOutlet()
+    
 
 class PythonItem(NSObject):
 
@@ -191,9 +213,13 @@ class PythonItem(NSObject):
         # "Pythonic" constructor
         return cls.alloc().init()
 
-    def __init__(self, name, type):
+    def __init__(self, name, type, parent):
         self.name = name
         self.type = type
+        self.parent = parent
+
+    def get_parent_name(self):
+        return self.parent.name if self.parent else None
 
 if __name__ == "__main__":
     app = Cocoa.NSApplication.sharedApplication()
@@ -209,3 +235,4 @@ if __name__ == "__main__":
     Cocoa.NSApp.activateIgnoringOtherApps_(True)
     
     AppHelper.runEventLoop()
+
