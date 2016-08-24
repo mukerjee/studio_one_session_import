@@ -23,7 +23,11 @@ def replace_arranger_track(src, dst):
 
 def import_melodyne_data(src, dst):
     if os.path.exists(src.prefix + '/ARA/'):
-        shutil.copytree(src.prefix + '/ARA/', dst.prefix + '/ARA/')
+        if not os.path.exists(dst.prefix + '/ARA/'):
+            shutil.copytree(src.prefix + '/ARA/', dst.prefix + '/ARA/')
+        else:
+            # TODO : merge melodyne
+            pass
 
 
 def import_track(src, dst, track_name, options):

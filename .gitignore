@@ -2,3 +2,5 @@
 *~
 *.pyc
 *.app
+/gui/build
+/gui/dist

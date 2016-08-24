@@ -102,13 +102,13 @@ class S1ImportGUIController(Cocoa.NSWindowController):
             self.dst_song.write()
         self.quit_(None)
 
-    # @Cocoa.objc.IBAction
-    # def quit_(self, sender):
-    #     if self.src_song:
-    #         self.src_song.clean()
-    #     if self.dst_song:
-    #         self.dst_song.clean()
-    #     AppKit.NSApp().terminate_(self)
+    @Cocoa.objc.IBAction
+    def quit_(self, sender):
+        if self.src_song:
+            self.src_song.clean()
+        if self.dst_song:
+            self.dst_song.clean()
+        AppKit.NSApp().terminate_(self)
 
     @Cocoa.objc.IBAction
     def trackCheck_(self, sender):
@@ -226,7 +226,7 @@ if __name__ == "__main__":
     
     # Initiate the contrller with a XIB
     viewController = \
-        S1ImportGUIController.alloc().initWithWindowNibName_("S1ImportGUIMenu")
+        S1ImportGUIController.alloc().initWithWindowNibName_("GUI")
 
     # Show the window
     viewController.showWindow_(viewController)

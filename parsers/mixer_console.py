@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys
+import copy
 from lxml import etree
 from song_parser import Parser
 
@@ -32,7 +33,7 @@ class MixerConsole(Parser):
     def add_channel_setting(self, channel_setting):
         self.tree.xpath(
             "Attributes[@x:id='channelSettings']",
-            namespaces=self.ns).append(channel_setting)
+            namespaces=self.ns)[0].append(channel_setting)
         a = channel_setting.xpath("Attributes")[0]
         a.set("order", str(int(a.get("order")) + self.max))
         uid = self.fix_uid(channel_setting.get("path"))
@@ -40,13 +41,13 @@ class MixerConsole(Parser):
 
     def add_channel_to_banks(self, channel):
         for bank in self.channel_banks.values():
+            ch = copy.deepcopy(channel)
             v = bank.xpath("List[@x:id='visible']", namespaces=self.ns)
             if not len(v):
                 v = etree.SubElement(bank, "List")
                 v.set("{x}id", "visible")
-                bank.append(v)
                 v = [v]
-            v[0].append(channel)
+            v[0].append(ch)
             
 if __name__ == "__main__":
     mc = MixerConsole(sys.argv[1])

@@ -7,8 +7,8 @@ Usage:
 
 from setuptools import setup
 
-APP = ['S1ImportGUI.py']
-DATA_FILES = ['S1ImportGUIMenu.xib', '../song_model.py', '../util.py', '../parsers/audio_mixer.py', '../parsers/audio_synth_folder.py', '../parsers/media_pool.py', '../parsers/mixer_console.py', '../parsers/music_track_device.py', '../parsers/song.py', '../parsers/song_parser.py']
+APP = ['Studio One Import.py']
+DATA_FILES = ['GUI.xib', '../song_model.py', '../util.py', '../parsers/audio_mixer.py', '../parsers/audio_synth_folder.py', '../parsers/media_pool.py', '../parsers/mixer_console.py', '../parsers/music_track_device.py', '../parsers/song.py', '../parsers/song_parser.py']
 OPTIONS = {
     "includes": ['lxml.etree'],
     "packages": ['lxml'],

@@ -29,7 +29,8 @@ class AudioMixer(Parser):
         return self.channels[channelID].get("label")
 
     def get_type(self, channelID):
-        return self.channels[channelID].tag
+        return self.channels[channelID].tag \
+            if channelID in self.channels else 'None'
 
     def get_destination(self, channelID):
         d = self.channels[channelID].xpath(

@@ -686,7 +686,7 @@
                             <action selector="opendst:" target="-2" id="zTV-QB-Wvv"/>
                         </connections>
                     </button>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0VR-uv-1Lv">
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0VR-uv-1Lv">
                         <rect key="frame" x="94" y="355" width="37" height="17"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Label" id="4Ci-pR-hyt">
                             <font key="font" metaFont="system"/>
@@ -702,7 +702,7 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <button verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HD2-VK-gfU">
+                    <button verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HD2-VK-gfU">
                         <rect key="frame" x="64" y="373" width="97" height="32"/>
                         <buttonCell key="cell" type="push" title="Open Src" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Pdk-V1-cff">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -753,7 +753,7 @@
                                                             </connections>
                                                         </button>
                                                         <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wno-pR-A54">
-                                                            <rect key="frame" x="21" y="0.0" width="100" height="17"/>
+                                                            <rect key="frame" x="21" y="0.0" width="448" height="17"/>
                                                             <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="zkY-k2-CqX">
                                                                 <font key="font" metaFont="system"/>
                                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -800,21 +800,21 @@
                             <action selector="import:" target="-2" id="8VM-Jm-2vC"/>
                         </connections>
                     </button>
-                    <button ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="azv-88-T7P">
+                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="azv-88-T7P">
                         <rect key="frame" x="68" y="43" width="153" height="18"/>
                         <buttonCell key="cell" type="check" title="Tempo/Time Sig Map" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="qlm-Nm-knf">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                     </button>
-                    <button ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Azd-h3-vv1">
+                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Azd-h3-vv1">
                         <rect key="frame" x="68" y="23" width="102" height="18"/>
                         <buttonCell key="cell" type="check" title="Marker Track" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="6Ls-Fc-9vg">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                     </button>
-                    <button ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZnQ-nu-Vbk">
+                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZnQ-nu-Vbk">
                         <rect key="frame" x="232" y="43" width="113" height="18"/>
                         <buttonCell key="cell" type="check" title="Arranger Track" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="wmf-mT-iwn">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -832,13 +832,7 @@
                 <constraints>
                     <constraint firstItem="jf2-Qg-2La" firstAttribute="centerX" secondItem="3hf-JK-9Mx" secondAttribute="centerX" id="3Tl-WN-BMP"/>
                     <constraint firstItem="0VR-uv-1Lv" firstAttribute="centerX" secondItem="HD2-VK-gfU" secondAttribute="centerX" id="8tX-s2-Bk5"/>
-                    <constraint firstItem="azv-88-T7P" firstAttribute="leading" secondItem="HD2-VK-gfU" secondAttribute="leading" id="JEf-u3-w0j"/>
-                    <constraint firstItem="ZnQ-nu-Vbk" firstAttribute="top" secondItem="Azd-h3-vv1" secondAttribute="bottom" constant="6" symbolic="YES" id="Jxf-iz-vAf"/>
                     <constraint firstItem="pkl-yi-RZW" firstAttribute="centerX" secondItem="3hf-JK-9Mx" secondAttribute="centerX" id="MA0-Vu-KX8"/>
-                    <constraint firstItem="HD2-VK-gfU" firstAttribute="top" secondItem="VJl-xg-I7c" secondAttribute="top" constant="82" id="asd-RQ-av3"/>
-                    <constraint firstItem="0VR-uv-1Lv" firstAttribute="top" secondItem="VJl-xg-I7c" secondAttribute="top" constant="39" id="eOV-Ga-nWm"/>
-                    <constraint firstItem="ZnQ-nu-Vbk" firstAttribute="leading" secondItem="Azd-h3-vv1" secondAttribute="leading" id="fO9-tE-uGI"/>
-                    <constraint firstAttribute="bottom" secondItem="ZnQ-nu-Vbk" secondAttribute="bottom" constant="28" id="nxg-YD-MwO"/>
                     <constraint firstItem="3hf-JK-9Mx" firstAttribute="baseline" secondItem="HD2-VK-gfU" secondAttribute="baseline" id="rSQ-ZW-MLr"/>
                     <constraint firstItem="HD2-VK-gfU" firstAttribute="leading" secondItem="VJl-xg-I7c" secondAttribute="leading" constant="70" id="t6l-BK-du5"/>
                     <constraint firstItem="pkl-yi-RZW" firstAttribute="baseline" secondItem="0VR-uv-1Lv" secondAttribute="baseline" id="zMg-0b-qAm"/>
