@@ -100,7 +100,13 @@ class S1ImportGUIController(Cocoa.NSWindowController):
                     import_track(self.src_song, self.dst_song, track,
                                  self.import_set[track])
             self.dst_song.write()
-        self.quit_(None)
+            alert = Cocoa.NSAlert.alloc().init()
+            alert.setMessageText_("Data successfully imported. " +
+                                  "The output was saved to: " + self.dst_song.fn)
+            alert.setInformativeText_("The app will now close.")
+            alert.addButtonWithTitle_("Ok")
+            alert.runModal()
+            self.quit_(None)
 
     @Cocoa.objc.IBAction
     def quit_(self, sender):

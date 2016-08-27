@@ -676,18 +676,8 @@
                 <rect key="frame" x="0.0" y="0.0" width="565" height="438"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <button verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3hf-JK-9Mx">
-                        <rect key="frame" x="376" y="373" width="97" height="32"/>
-                        <buttonCell key="cell" type="push" title="Open Dst" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="eV3-QO-B4a">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="opendst:" target="-2" id="zTV-QB-Wvv"/>
-                        </connections>
-                    </button>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0VR-uv-1Lv">
-                        <rect key="frame" x="94" y="355" width="37" height="17"/>
+                        <rect key="frame" x="126" y="355" width="37" height="17"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Label" id="4Ci-pR-hyt">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -703,8 +693,8 @@
                         </textFieldCell>
                     </textField>
                     <button verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HD2-VK-gfU">
-                        <rect key="frame" x="64" y="373" width="97" height="32"/>
-                        <buttonCell key="cell" type="push" title="Open Src" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Pdk-V1-cff">
+                        <rect key="frame" x="64" y="373" width="162" height="32"/>
+                        <buttonCell key="cell" type="push" title="Select Source Song" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Pdk-V1-cff">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
@@ -827,6 +817,16 @@
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
+                    </button>
+                    <button verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3hf-JK-9Mx">
+                        <rect key="frame" x="330" y="373" width="188" height="32"/>
+                        <buttonCell key="cell" type="push" title="Select Destination Song" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="eV3-QO-B4a">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="opendst:" target="-2" id="zTV-QB-Wvv"/>
+                        </connections>
                     </button>
                 </subviews>
                 <constraints>
