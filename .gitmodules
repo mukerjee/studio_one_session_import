@@ -1,0 +1,3 @@
+[submodule "studio-one-session-parser"]
+	path = studio-one-session-parser
+	url = https://github.com/mukerjee/studio-one-session-parser
