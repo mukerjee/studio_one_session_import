@@ -4,3 +4,4 @@
 *.app
 /gui/build
 /gui/dist
+/examples/*
