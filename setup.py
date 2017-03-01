@@ -25,6 +25,7 @@ DESCRIPTION = "A macOS app for importing Presonus Studio One session " \
 
 OPTIONS = {
     "resources": RESOURCES,
+    "frameworks": ['/usr/lib/libxml2.2.dylib'],
 }
 
 COMMON_OPTIONS = {
