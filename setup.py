@@ -8,11 +8,29 @@ Usage:
 from setuptools import setup
 
 APP = ['Studio One Import.py']
-DATA_FILES = ['GUI.xib', '../song_model.py', '../util.py', '../parsers/audio_mixer.py', '../parsers/audio_synth_folder.py', '../parsers/media_pool.py', '../parsers/mixer_console.py', '../parsers/music_track_device.py', '../parsers/song.py', '../parsers/song_parser.py']
+DATA_FILES = ['GUI.xib', 'util.py']
+RESOURCES = [('studio_one_session_parser',
+              ['studio_one_session_parser/song_model.py']),
+             ('studio_one_session_parser/parsers',
+              ['studio_one_session_parser/parsers/audio_mixer.py',
+               'studio_one_session_parser/parsers/audio_synth_folder.py',
+               'studio_one_session_parser/parsers/media_pool.py',
+               'studio_one_session_parser/parsers/mixer_console.py',
+               'studio_one_session_parser/parsers/music_track_device.py',
+               'studio_one_session_parser/parsers/song.py',
+               'studio_one_session_parser/parsers/song_parser.py'])]
+
+DESCRIPTION = "A macOS app for importing Presonus Studio One session " \
+              "data into a different session"
+
 OPTIONS = {
-    "includes": ['lxml.etree'],
-    "packages": ['lxml'],
-    "frameworks": ['/usr/lib/libxml2.2.dylib']
+    "resources": RESOURCES,
+}
+
+COMMON_OPTIONS = {
+    'name': "Studio One Session Import",
+    'version': "0.1",
+    'description': DESCRIPTION,
 }
 
 setup(
@@ -20,4 +38,5 @@ setup(
     data_files=DATA_FILES,
     options={'py2app': OPTIONS},
     setup_requires=['py2app'],
+    **COMMON_OPTIONS
 )

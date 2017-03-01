@@ -4,14 +4,12 @@ from PyObjCTools import AppHelper
 from Foundation import NSObject
 import os
 
-import sys
-sys.path.append('./')
-sys.path.append('/Library/Python/2.7/site-packages/' +
-                'lxml-3.3.1-py2.7-macosx-10.9-intel.egg')
-from song_model import SongModel
+from studio_one_session_parser.song_model import SongModel
 from util import replace_tempo_map, replace_time_sig_map, \
     replace_marker_track, replace_arranger_track, import_track, \
     import_melodyne_data
+
+Cocoa.objc.setVerbose(1)
 
 
 TRACK_OPTIONS = (
@@ -47,10 +45,6 @@ class S1ImportGUIController(Cocoa.NSWindowController):
 
     def open_box(self):
         op = Cocoa.NSOpenPanel.openPanel()
-        op.setCanChooseDirectories_(False)
-        op.setCanChooseFiles_(True)
-        op.setResolvesAliases_(True)
-        op.setAllowsMultipleSelection_(False)
         if op.runModal() == Cocoa.NSOKButton:
             return op.filename()
         else:
@@ -174,6 +168,7 @@ class S1ImportGUIController(Cocoa.NSWindowController):
         else:
             return self.getPythonItem(TRACK_OPTIONS[index], "", item)
 
+    @Cocoa.objc.python_method
     def getPythonItem(self, item, type, parent):
         if item in self.pythonItems:
             return self.pythonItems[(parent, item)]

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import sys
-from song_model import SongModel
+from studio_one_session_parser.song_model import SongModel
 from util import replace_tempo_map, replace_time_sig_map, \
     replace_marker_track, import_track, import_melodyne_data
 
